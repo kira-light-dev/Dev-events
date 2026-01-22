@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { Event } from './event.model';
+import Event from './event.model';
 
+// TypeScript interface for Booking document
 export interface IBooking extends Document {
   eventId: Types.ObjectId;
   email: string;
@@ -8,61 +9,47 @@ export interface IBooking extends Document {
   updatedAt: Date;
 }
 
-const emailRegex =
-  // Basic email format validation suitable for application-level checks
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Email validation regex pattern
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const BookingSchema = new Schema<IBooking>(
   {
     eventId: {
       type: Schema.Types.ObjectId,
       ref: 'Event',
-      required: true,
-      index: true, // index on eventId for faster event-based queries
+      required: [true, 'Event ID is required'],
+      index: true, // Index for faster event-based queries
     },
     email: {
       type: String,
-      required: true,
+      required: [true, 'Email is required'],
       trim: true,
+      lowercase: true,
       validate: {
-        validator: (value: string): boolean => emailRegex.test(value),
-        message: 'Invalid email address',
+        validator: (email: string) => EMAIL_REGEX.test(email),
+        message: 'Please provide a valid email address',
       },
     },
   },
   {
-    timestamps: true, // createdAt / updatedAt
-    strict: true,
-  },
+    timestamps: true, // Auto-generate createdAt and updatedAt
+  }
 );
 
-// Pre‑save validation: ensure referenced Event exists and email is valid
-BookingSchema.pre<IBooking>('save', async function preSave(next) {
-  try {
-    if (!this.eventId) {
-      return next(new Error('eventId is required'));
-    }
-
-    // Extra safety check for email beyond schema validator (guards programmatic assignments)
-    if (!emailRegex.test(this.email)) {
-      return next(new Error('Invalid email address'));
-    }
-
-    // Verify the referenced event exists before creating the booking
-    const eventExists = await Event.exists({ _id: this.eventId }).lean().exec();
+// Pre-save hook to validate that the referenced event exists
+// Note: async middleware doesn't require next() - promise handles flow control
+BookingSchema.pre('save', async function () {
+  // Only validate eventId if it's new or modified
+  if (this.isModified('eventId') || this.isNew) {
+    const eventExists = await Event.findById(this.eventId);
     if (!eventExists) {
-      return next(new Error('Referenced event does not exist'));
+      throw new Error(`Event with ID ${this.eventId} does not exist`);
     }
-
-    return next();
-  } catch (err) {
-    return next(err as Error);
   }
 });
 
-export const Booking: Model<IBooking> =
-  (mongoose.models.Booking as Model<IBooking>) ||
-  mongoose.model<IBooking>('Booking', BookingSchema);
+// Prevent model recompilation in development with hot reload
+const Booking: Model<IBooking> =
+  mongoose.models.Booking || mongoose.model<IBooking>('Booking', BookingSchema);
 
 export default Booking;
-

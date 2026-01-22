@@ -1,3 +1,3 @@
-export { Event, type IEvent } from './event.model';
-export { Booking, type IBooking } from './booking.model';
-
+// Central export for all database models
+export { default as Event, type IEvent } from './event.model';
+export { default as Booking, type IBooking } from './booking.model';
