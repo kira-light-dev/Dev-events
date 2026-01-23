@@ -124,7 +124,7 @@
   }
 
   h3 {
-    @apply font-schibsted-grotesk text-2xl font-bold;
+    @apply font-schibsted-grotesk text-2xl font-bold mb-2;
   }
 
   ul {
@@ -151,11 +151,11 @@
     @apply glass sticky top-0 z-50;
 
     nav {
-      @apply flex flex-row justify-between mx-auto container sm:px-10 px-5 py-4;
+      @apply flex flex-row justify-between mx-auto container sm:px-10 px-5 py-5;
     }
 
     .logo {
-      @apply flex flex-row items-center gap-2;
+      @apply flex flex-row items-center gap-2.5;
 
       p {
         @apply text-xl font-bold italic max-sm:hidden;
@@ -163,16 +163,16 @@
     }
 
     ul {
-      @apply flex flex-row items-center gap-6;
+      @apply flex flex-row items-center gap-7;
     }
   }
 
   .events {
-    @apply grid md:grid-cols-3 gap-10 sm:grid-cols-2 grid-cols-1;
+    @apply grid md:grid-cols-3 gap-8 sm:grid-cols-2 grid-cols-1 max-sm:gap-6;
   }
 
   #event-card {
-    @apply flex flex-col gap-3;
+    @apply flex flex-col gap-4;
 
     .poster {
       @apply h-[300px] w-full rounded-lg object-cover;
@@ -183,11 +183,11 @@
     }
 
     p {
-      @apply text-light-200 text-sm font-light;
+      @apply text-light-200 text-sm font-light leading-relaxed;
     }
 
     .datetime {
-      @apply text-light-200 flex flex-row flex-wrap items-center gap-4;
+      @apply text-light-200 flex flex-row flex-wrap items-center gap-5;
 
       div {
         @apply flex flex-row gap-2;
@@ -197,21 +197,21 @@
 
   #event {
     .header {
-      @apply flex w-2/3 flex-col items-start gap-4 max-lg:w-full mb-10;
+      @apply flex w-2/3 flex-col items-start gap-5 max-lg:w-full mb-12;
     }
 
     .details {
-      @apply flex w-full flex-col lg:flex-row gap-12 items-start mt-12 max-lg:items-center;
+      @apply flex w-full flex-col lg:flex-row gap-16 items-start mt-16 max-lg:items-center;
 
       .content {
-        @apply flex flex-[2] flex-col gap-8 max-lg:w-full;
+        @apply flex flex-[2] flex-col gap-10 max-lg:w-full;
 
         .banner {
           @apply max-h-[457px] w-full rounded-lg object-cover;
         }
 
         .agenda {
-          @apply flex flex-col gap-2;
+          @apply flex flex-col gap-3;
 
           ul {
             li {
@@ -222,10 +222,10 @@
       }
 
       .booking {
-        @apply flex-1 w-full p-4 border-l border-gray-700;
+        @apply flex-1 w-full p-6 border-l border-gray-700;
 
         .signup-card {
-          @apply bg-dark-100 border-dark-200 card-shadow flex w-full flex-col gap-6 rounded-[10px] border px-5 py-6;
+          @apply bg-dark-100 border-dark-200 card-shadow flex w-full flex-col gap-5 rounded-[10px] border px-6 py-7;
         }
       }
     }
@@ -252,21 +252,21 @@
   }
 
   #book-event {
-    @apply flex flex-col gap-6;
+    @apply flex flex-col gap-5;
 
     form {
-      @apply flex flex-col gap-6;
+      @apply flex flex-col gap-5;
 
       div {
-        @apply flex flex-col gap-2;
+        @apply flex flex-col gap-2.5;
 
         input {
-          @apply bg-dark-200 rounded-[6px] px-5 py-2.5;
+          @apply bg-dark-200 rounded-[6px] px-5 py-3;
         }
       }
 
       button {
-        @apply bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black;
+        @apply bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-5 py-3 text-lg font-semibold text-black;
       }
     }
   }

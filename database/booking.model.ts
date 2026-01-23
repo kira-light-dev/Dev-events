@@ -43,6 +43,9 @@ const BookingSchema = new Schema<IBooking>(
   }
 );
 
+// Compound unique index to prevent duplicate bookings per event/email
+BookingSchema.index({ eventId: 1, email: 1 }, { unique: true });
+
 // Pre-save hook to validate that the referenced event exists
 // Note: async middleware doesn't require next() - promise handles flow control
 BookingSchema.pre('save', async function () {
