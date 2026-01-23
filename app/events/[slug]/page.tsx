@@ -46,8 +46,8 @@ const EventTags = ({ tags }: { tags: string[] }) => (
 
 // ---------- page ----------
 
-const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }> }) => {
-    const { slug } = await params;
+const EventDetailsPage = async ({ params }: { params: { slug: string } }) => {
+    const { slug } = params;
 
     // ✅ fetch SINGLE event by slug
     const response = await fetch(`${BASE_URL}/api/Events/${slug}`, {
@@ -112,7 +112,7 @@ const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }> })
                     <section className="flex flex-col gap-2">
                         <h2>Event details</h2>
 
-                        <EventDetailItem icon="/icons/cal.svg" alt="calendar" label={date} />
+                        <EventDetailItem icon="/icons/calendar.svg" alt="calendar" label={date} />
                         <EventDetailItem icon="/icons/clock.svg" alt="time" label={time} />
                         <EventDetailItem icon="/icons/pin.svg" alt="location" label={location} />
                         <EventDetailItem icon="/icons/mode.svg" alt="mode" label={mode} />
