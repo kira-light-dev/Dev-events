@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import BookEvent from "@/components/BookEvent";
 import { IEvent } from "@/database";
@@ -44,10 +45,31 @@ const EventTags = ({ tags }: { tags: string[] }) => (
     </div>
 );
 
-// ---------- page ----------
+const SimilarEventsSection = async ({ slug }: { slug: string }) => {
+    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
-const EventDetailsPage = async ({ params }: { params: { slug: string } }) => {
-    const { slug } = params;
+    if (!similarEvents.length) return null;
+
+    return (
+        <div className="flex w-full flex-col gap-4 pt-20">
+            <h2>Similar Events</h2>
+
+            <div className="events">
+                {similarEvents.map((similarEvent: IEvent) => (
+                    <EventCard
+                        key={similarEvent._id.toString()}
+                        {...similarEvent}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// ---------- page content (async) ----------
+
+const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string }> }) => {
+    const { slug } = await params;
 
     // ✅ fetch SINGLE event by slug
     const response = await fetch(`${BASE_URL}/api/Events/${slug}`, {
@@ -79,8 +101,6 @@ const EventDetailsPage = async ({ params }: { params: { slug: string } }) => {
     } = event;
 
     if (!description) notFound();
-
-    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
     return (
         <section id="event">
@@ -143,20 +163,29 @@ const EventDetailsPage = async ({ params }: { params: { slug: string } }) => {
             </div>
 
             {/* similar events */}
-            <div className="flex w-full flex-col gap-4 pt-20">
-                <h2>Similar Events</h2>
-
-                <div className="events">
-                    {similarEvents.length > 0 &&
-                        similarEvents.map((similarEvent: IEvent) => (
-                            <EventCard
-                                key={similarEvent._id.toString()}
-                                {...similarEvent}
-                            />
-                        ))}
-                </div>
-            </div>
+            <Suspense
+                fallback={
+                    <div className="flex w-full flex-col gap-4 pt-20">
+                        <h2>Similar Events</h2>
+                        <p>Loading similar events...</p>
+                    </div>
+                }
+            >
+                {/* @ts-expect-error Async Server Component */}
+                <SimilarEventsSection slug={slug} />
+            </Suspense>
         </section>
+    );
+};
+
+// ---------- page shell (sync, wraps async content in Suspense) ----------
+
+const EventDetailsPage = (props: { params: Promise<{ slug: string }> }) => {
+    return (
+        <Suspense fallback={<section id="event"><p>Loading event...</p></section>}>
+            {/* @ts-expect-error Async Server Component */}
+            <EventDetailsContent {...props} />
+        </Suspense>
     );
 };
 

@@ -1,7 +1,7 @@
 'use server';
 
 import { cache } from 'react';
-import Event from '@/database/event.model';
+import Event, { IEvent } from '@/database/event.model';
 import connectDB from '@/lib/mongodb';
 
 export const getSimilarEventsBySlug = cache(
@@ -15,10 +15,16 @@ export const getSimilarEventsBySlug = cache(
                 return [];
             }
 
-            return await Event.find({
+            const similarEvents = await Event.find({
                 _id: { $ne: event._id },
                 tags: { $in: event.tags },
-            }).limit(3);
+                slug: { $exists: true, $ne: null, $ne: '' },
+            })
+                .select('title image slug location date time')
+                .limit(3)
+                .lean<IEvent[]>();
+
+            return similarEvents;
         } catch {
             return [];
         }

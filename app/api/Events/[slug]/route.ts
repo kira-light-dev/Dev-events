@@ -4,7 +4,7 @@ import { Event, IEvent } from '@/database';
 
 // Type for route params
 interface RouteParams {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 // Standard API response types
@@ -29,7 +29,7 @@ export async function GET(
   { params }: RouteParams
 ): Promise<NextResponse<ApiResponse>> {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     // Validate slug parameter
     if (!slug || typeof slug !== 'string') {

@@ -11,11 +11,14 @@ type Props = {
 };
 
 const EventCard = ({ title, image, slug, location, date, time }: Props) => {
+    const imageSrc = image && image.trim().length > 0 ? image : "/images/event-full.png";
+    const imageAlt = title && title.trim().length > 0 ? title : "Event image";
+
     return (
         <Link href={`/events/${slug}`} id="event-card">
             <Image
-                src={image}
-                alt={title}
+                src={imageSrc}
+                alt={imageAlt}
                 width={410}
                 height={300}
                 className="poster"
