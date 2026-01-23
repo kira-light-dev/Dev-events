@@ -18,7 +18,7 @@ const EventDetailItem = ({
     alt: string;
     label: string;
 }) => (
-    <div className="flex flex-row gap-2 items-center">
+    <div className="flex flex-row gap-2.5 items-center">
         <img src={icon} alt={alt} width={17} height={17} />
         <p>{label}</p>
     </div>
@@ -51,7 +51,7 @@ const SimilarEventsSection = async ({ slug }: { slug: string }) => {
     if (!similarEvents.length) return null;
 
     return (
-        <div className="flex w-full flex-col gap-4 pt-20">
+        <div className="flex w-full flex-col gap-5 pt-24">
             <h2>Similar Events</h2>
 
             <div className="events">
@@ -73,7 +73,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
 
     // ✅ fetch SINGLE event by slug
     const response = await fetch(`${BASE_URL}/api/Events/${slug}`, {
-        cache: "force-cache",
+        next: { tags: ['events', `event-${slug}`] },
     });
 
 
@@ -87,6 +87,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
     if (!event) notFound();
 
     const {
+        title,
         description,
         image,
         overview,
@@ -106,8 +107,8 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
         <section id="event">
             {/* header */}
             <div className="header">
-                <h1>Event description</h1>
-                <p className="mt-2">{description}</p>
+                <h1>{title}</h1>
+                <p className="mt-4">{description}</p>
             </div>
 
             {/* main layout */}
@@ -123,13 +124,13 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
                     />
 
                     {/* overview */}
-                    <section className="flex flex-col gap-2">
+                    <section className="flex flex-col gap-3">
                         <h2>Overview</h2>
                         <p>{overview}</p>
                     </section>
 
                     {/* event details */}
-                    <section className="flex flex-col gap-2">
+                    <section className="flex flex-col gap-3">
                         <h2>Event details</h2>
 
                         <EventDetailItem icon="/icons/calendar.svg" alt="calendar" label={date} />
@@ -147,7 +148,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
                     <EventAgenda agenda={agenda} />
 
                     {/* organizer */}
-                    <section className="flex flex-col gap-2">
+                    <section className="flex flex-col gap-3">
                         <h2>About the organizer</h2>
                         <p>{organizer}</p>
                     </section>
@@ -165,7 +166,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
             {/* similar events */}
             <Suspense
                 fallback={
-                    <div className="flex w-full flex-col gap-4 pt-20">
+                    <div className="flex w-full flex-col gap-5 pt-24">
                         <h2>Similar Events</h2>
                         <p>Loading similar events...</p>
                     </div>

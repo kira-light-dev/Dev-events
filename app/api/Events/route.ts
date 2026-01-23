@@ -53,6 +53,10 @@ export async function POST(req: NextRequest) {
             agenda: agenda,
         });
 
+        const { revalidateTag, revalidatePath } = await import('next/cache');
+        revalidateTag('events');
+        revalidatePath('/');
+
         return NextResponse.json(createdEvent, { status: 201 });
     } catch (err: any) {
         console.error(err);
@@ -71,10 +75,56 @@ export async function GET(){
         await connectDB();
         const events = await Event.find().sort({createdAt: -1});
 
-        return NextResponse.json({message : "Events fetched successfully", events}, {status : 200});
+        const response = NextResponse.json({message : "Events fetched successfully", events}, {status : 200});
+        response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+        return response;
     }catch(err){
         console.error(err);
         return NextResponse.json({message:"Event creation failed", error: err},{status : 500});
+    }
+}
+
+export async function DELETE(req: NextRequest) {
+    try {
+        await connectDB();
+        const { searchParams } = new URL(req.url);
+        const eventId = searchParams.get('id');
+
+        if (!eventId) {
+            return NextResponse.json(
+                { message: 'Event ID is required' },
+                { status: 400 }
+            );
+        }
+
+        const deletedEvent = await Event.findByIdAndDelete(eventId);
+
+        if (!deletedEvent) {
+            return NextResponse.json(
+                { message: 'Event not found' },
+                { status: 404 }
+            );
+        }
+
+        const { revalidateTag, revalidatePath } = await import('next/cache');
+        revalidateTag('events');
+        revalidateTag(`event-${deletedEvent.slug}`);
+        revalidatePath('/');
+        revalidatePath(`/events/${deletedEvent.slug}`);
+
+        return NextResponse.json(
+            { message: 'Event deleted successfully', deletedEvent },
+            { status: 200 }
+        );
+    } catch (err: any) {
+        console.error(err);
+        return NextResponse.json(
+            {
+                message: 'Event deletion failed',
+                error: err instanceof Error ? err.message : 'unknown',
+            },
+            { status: 500 }
+        );
     }
 }
 
