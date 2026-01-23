@@ -158,7 +158,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
 
                 {/* right side booking */}
                 <aside className="booking">
-                    <BookEvent />
+                    <BookEvent eventId={event._id} slug={slug} />
                 </aside>
             </div>
 
