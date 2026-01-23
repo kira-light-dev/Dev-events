@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import BookEvent from "@/components/BookEvent";
-import {IEvent} from "@/database";
-import {getSimilarEventsBySlug} from "@/lib/event.actions";
+import { IEvent } from "@/database";
+import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
 import EventCard from "@/components/EventCard";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -46,11 +46,21 @@ const EventTags = ({ tags }: { tags: string[] }) => (
 
 // ---------- page ----------
 
-const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }>}) => {
+const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }> }) => {
     const { slug } = await params;
 
-    const res = await fetch(`${BASE_URL}/api/Events/${slug}`);
-    const { data: event } = await res.json();
+    // ✅ fetch SINGLE event by slug
+    const response = await fetch(`${BASE_URL}/api/Events/${slug}`, {
+        cache: "force-cache",
+    });
+
+
+    // ✅ protect against HTML / error response
+    if (!response.ok) {
+        notFound();
+    }
+
+    const { data: event } = await response.json();
 
     if (!event) notFound();
 
@@ -70,7 +80,7 @@ const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }>}) 
 
     if (!description) notFound();
 
-    const similarEvents : IEvent[] = await getSimilarEventsBySlug(slug);
+    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
     return (
         <section id="event">
@@ -102,26 +112,10 @@ const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }>}) 
                     <section className="flex flex-col gap-2">
                         <h2>Event details</h2>
 
-                        <EventDetailItem
-                            icon="/icons/cal.svg"
-                            alt="calendar"
-                            label={date}
-                        />
-                        <EventDetailItem
-                            icon="/icons/clock.svg"
-                            alt="time"
-                            label={time}
-                        />
-                        <EventDetailItem
-                            icon="/icons/pin.svg"
-                            alt="location"
-                            label={location}
-                        />
-                        <EventDetailItem
-                            icon="/icons/mode.svg"
-                            alt="mode"
-                            label={mode}
-                        />
+                        <EventDetailItem icon="/icons/cal.svg" alt="calendar" label={date} />
+                        <EventDetailItem icon="/icons/clock.svg" alt="time" label={time} />
+                        <EventDetailItem icon="/icons/pin.svg" alt="location" label={location} />
+                        <EventDetailItem icon="/icons/mode.svg" alt="mode" label={mode} />
                         <EventDetailItem
                             icon="/icons/audience.svg"
                             alt="audience"
@@ -144,10 +138,11 @@ const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }>}) 
 
                 {/* right side booking */}
                 <aside className="booking">
-                    <BookEvent/>
+                    <BookEvent />
                 </aside>
             </div>
 
+            {/* similar events */}
             <div className="flex w-full flex-col gap-4 pt-20">
                 <h2>Similar Events</h2>
 
@@ -160,9 +155,7 @@ const EventDetailsPage = async ({params}: { params: Promise<{ slug: string }>}) 
                             />
                         ))}
                 </div>
-
             </div>
-
         </section>
     );
 };

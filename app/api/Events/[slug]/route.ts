@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { Event, IEvent } from '@/database';
 
-// Route segment config
-export const dynamic = 'force-dynamic';
-
 // Type for route params
 interface RouteParams {
   params: Promise<{ slug: string }>;
