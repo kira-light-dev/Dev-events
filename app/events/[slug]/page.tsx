@@ -171,7 +171,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
                     </div>
                 }
             >
-                {/* @ts-expect-error Async Server Component */}
+                
                 <SimilarEventsSection slug={slug} />
             </Suspense>
         </section>
@@ -183,7 +183,7 @@ const EventDetailsContent = async ({ params }: { params: Promise<{ slug: string 
 const EventDetailsPage = (props: { params: Promise<{ slug: string }> }) => {
     return (
         <Suspense fallback={<section id="event"><p>Loading event...</p></section>}>
-            {/* @ts-expect-error Async Server Component */}
+          
             <EventDetailsContent {...props} />
         </Suspense>
     );
