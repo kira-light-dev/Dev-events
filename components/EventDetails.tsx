@@ -1,11 +1,9 @@
-import {Suspense} from "react";
+import { Suspense } from "react";
 import EventCard from "@/components/EventCard";
-import {IEvent} from "@/database";
-import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
-import {notFound} from "next/navigation";
+import { IEvent } from "@/database";
+import { getEventBySlug, getSimilarEventsBySlug } from "@/lib/actions/event.actions";
+import { notFound } from "next/navigation";
 import BookEvent from "@/components/BookEvent";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 // ---------- reusable components ----------
 
@@ -45,19 +43,21 @@ const EventTags = ({ tags }: { tags: string[] }) => (
     </div>
 );
 
+// ---------- similar events ----------
+
 const SimilarEventsSection = async ({ slug }: { slug: string }) => {
     const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
-    if (!similarEvents.length) return null;
+    if (!similarEvents || similarEvents.length === 0) return null;
 
     return (
         <div className="flex w-full flex-col gap-5 pt-24">
             <h2>Similar Events</h2>
 
             <div className="events">
-                {similarEvents.map((similarEvent: IEvent) => (
+                {similarEvents.map((similarEvent) => (
                     <EventCard
-                        key={similarEvent._id.toString()}
+                        key={similarEvent._id?.toString() ?? similarEvent.slug}
                         {...similarEvent}
                     />
                 ))}
@@ -66,22 +66,13 @@ const SimilarEventsSection = async ({ slug }: { slug: string }) => {
     );
 };
 
-const EventDetails = async ({params} : {params :Promise<string>}) => {
+// ---------- main event details ----------
 
-    const slug = await params;
-    const response = await fetch(`${BASE_URL}/api/Events/${slug}`, {
-        next: { tags: ['events', `event-${slug}`] },
-    });
+const EventDetails = async ({ slug }: { slug: string }) => {
+    if (!slug) notFound();
 
-
-    // ✅ protect against HTML / error response
-    if (!response.ok) {
-        notFound();
-    }
-
-    const { data: event } = await response.json();
-
-    if (!event) notFound();
+    const event = await getEventBySlug(slug);
+    if (!event || !event.description) notFound();
 
     const {
         title,
@@ -96,9 +87,8 @@ const EventDetails = async ({params} : {params :Promise<string>}) => {
         agenda,
         organizer,
         tags,
+        _id,
     } = event;
-
-    if (!description) notFound();
 
     return (
         <section id="event">
@@ -156,7 +146,7 @@ const EventDetails = async ({params} : {params :Promise<string>}) => {
 
                 {/* right side booking */}
                 <aside className="booking">
-                    <BookEvent eventId={event._id} slug={slug} />
+                    <BookEvent eventId={_id.toString()} slug={slug} />
                 </aside>
             </div>
 
@@ -169,10 +159,10 @@ const EventDetails = async ({params} : {params :Promise<string>}) => {
                     </div>
                 }
             >
-
                 <SimilarEventsSection slug={slug} />
             </Suspense>
         </section>
     );
-}
-export default EventDetails
+};
+
+export default EventDetails;
